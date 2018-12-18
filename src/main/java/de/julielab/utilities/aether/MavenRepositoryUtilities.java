@@ -31,7 +31,8 @@ import static java.util.stream.Collectors.toList;
 
 public class MavenRepositoryUtilities {
 
-    public static final RemoteRepository central = new RemoteRepository.Builder("central", "default", "https://oss.sonatype.org/content/repositories/public/").setSnapshotPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_WARN)).build();
+    public static final RemoteRepository CENTRAL = new RemoteRepository.Builder("CENTRAL", "default", "https://oss.sonatype.org/content/repositories/public/").setSnapshotPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_WARN)).build();
+    public static final RemoteRepository LOCAL = new RemoteRepository.Builder("LOCAL", "default", MavenConstants.LOCAL_REPO.toURI().toString()).build();
 
     private final static Logger log = LoggerFactory.getLogger(MavenRepositoryUtilities.class);
     public static RepositorySystem newRepositorySystem() {
@@ -67,7 +68,7 @@ public class MavenRepositoryUtilities {
     public static List<RemoteRepository> getEffectiveRepositories(RepositorySystemSession session) throws SettingsBuildingException {
         Map<String, Authentication> authenticationMap = MavenSettingsUtilities.getRepositoryAuthenticationsFromMavenSettings();
         DefaultRemoteRepositoryManager remoteRepositoryManager = new DefaultRemoteRepositoryManager();
-        List<RemoteRepository> repositories = remoteRepositoryManager.aggregateRepositories(session, Arrays.asList(central), MavenSettingsUtilities.getRemoteRepositoriesFromSettings(), true);
+        List<RemoteRepository> repositories = remoteRepositoryManager.aggregateRepositories(session, Arrays.asList(CENTRAL), MavenSettingsUtilities.getRemoteRepositoriesFromSettings(), true);
         repositories = repositories.stream().map(repo -> {
             if (authenticationMap.containsKey(repo.getId())) {
                 return new RemoteRepository.Builder(repo).setAuthentication(authenticationMap.get(repo.getId())).build();

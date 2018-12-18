@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -58,34 +57,25 @@ public class AetherUtilities {
         MavenArtifact artifact = new MavenArtifact();
         artifact.setGroupId("de.julielab");
         artifact.setArtifactId("jcore-jsbd-ae");
-        artifact.setVersion("2.3.0");
+        artifact.setVersion("2.3.4-SNAPSHOT");
         artifact.setPackaging("jar");
-        System.out.println(getRemoteChecksums(artifact));
+        System.out.println(getRemoteChecksums(artifact, true));
     }
 
-    public static Optional<List<Checksum>> getRemoteChecksums(MavenArtifact artifact) throws MavenException {
+    public static Optional<List<Checksum>> getRemoteChecksums(MavenArtifact artifact, boolean searchLocally) throws MavenException {
         try {
-            getArtifactByAether(artifact, LOCAL_REPO, false);
-        } catch (MavenException e) {
-            if (e.getCause() instanceof ArtifactResolutionException) {
-                // This artifact does not exist. Return the empty optional.
-                return Optional.empty();
-            } else throw e;
-        }
-        RepositorySystemSession session = null;
-        try {
-            session = MavenRepositoryUtilities.newSession(MavenRepositoryUtilities.newRepositorySystem(), LOCAL_REPO);
+            RepositorySystemSession session = MavenRepositoryUtilities.newSession(MavenRepositoryUtilities.newRepositorySystem(), LOCAL_REPO);
             if (artifact.getAetherArtifact().isSnapshot()) {
-                return getChecksumsOfSnapshotArtifact(artifact, session);
+                return getRemoteChecksumsOfSnapshotArtifact(artifact, session);
             } else {
-                return getChecksumsOfReleaseArtifact(artifact, session);
+                return getRemoteChecksumsOfReleaseArtifact(artifact, session);
             }
         } catch (SettingsBuildingException | NoRepositoryLayoutException e) {
             throw new MavenException(e);
         }
     }
 
-    private static Optional<List<Checksum>> getChecksumsOfReleaseArtifact(MavenArtifact artifact, RepositorySystemSession session) throws SettingsBuildingException, NoRepositoryLayoutException, MavenException {
+    private static Optional<List<Checksum>> getRemoteChecksumsOfReleaseArtifact(MavenArtifact artifact, RepositorySystemSession session) throws SettingsBuildingException, NoRepositoryLayoutException, MavenException {
         List<Checksum> ret = new ArrayList<>();
         final Maven2RepositoryLayoutFactory layoutFactory = new Maven2RepositoryLayoutFactory();
         final List<RemoteRepository> repositories = MavenRepositoryUtilities.getEffectiveRepositories(session);
@@ -111,10 +101,10 @@ public class AetherUtilities {
                 }
             }
         }
-        return Optional.of(ret);
+        return ret.isEmpty() ? Optional.empty() : Optional.of(ret);
     }
 
-    private static Optional<List<Checksum>> getChecksumsOfSnapshotArtifact(MavenArtifact artifact, RepositorySystemSession session) throws MavenException {
+    private static Optional<List<Checksum>> getRemoteChecksumsOfSnapshotArtifact(MavenArtifact artifact, RepositorySystemSession session) throws MavenException {
         List<Checksum> ret = new ArrayList<>();
         final Maven2RepositoryLayoutFactory layoutFactory = new Maven2RepositoryLayoutFactory();
         try {
@@ -124,6 +114,14 @@ public class AetherUtilities {
             // Not all nexus servers seem to create the meta data. Our intenal nexus doesn't, for example.
             // So this algorithm will only work as long as any server will offer the meta data.
             if (filteredMetadataResults.isEmpty()) {
+                try {
+                    getArtifactByAether(artifact, LOCAL_REPO, false);
+                } catch (MavenException e) {
+                    if (e.getCause() instanceof ArtifactResolutionException) {
+                        // This artifact does not exist. Return the empty optional.
+                        return Optional.empty();
+                    } else throw e;
+                }
                 log.info("No existing meta data could be found for artifact {}, checking if the artifact already existing in any repository", artifact);
                 throw new IllegalStateException("The requested snapshot artifact " + artifact + " has no meta data on any server in " + metadataResults.stream().map(MetadataResult::getRequest).map(MetadataRequest::getRepository).map(RemoteRepository::toString).collect(Collectors.joining(", ")) + ". This case is currently not supported by this code. A workaround needs to be added.");
             }
@@ -149,6 +147,7 @@ public class AetherUtilities {
                 final List<RepositoryLayout.Checksum> checksums = layout.getChecksums(a, false, layout.getLocation(a, false));
                 for (RepositoryLayout.Checksum cs : checksums) {
                     // Here we concatenate the repository URL with the relative path of the checksum file
+                    System.out.println(repository);
                     URI checksumUri = URI.create(repository.getUrl() + "/" + cs.getLocation().toString());
                     // And now finally read the checksum file's contents. It should be a single line with the actual checksum.
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(checksumUri.toURL().openStream()))) {
@@ -209,34 +208,14 @@ public class AetherUtilities {
             List<MetadataResult> artifactResult = repositorySystem.resolveMetadata(session, requests);
             return artifactResult;
         } catch (SettingsBuildingException e) {
-            e.printStackTrace();
+            throw new MavenException(e);
         }
-        return null;
-//            for (MetadataResult result : artifactResult) {
-//                ret.add(result.getMetadata());
-//                final ArtifactRepository repository = result.getRequest().getRepository();
-//                if (resultMetadata != null && repository instanceof RemoteRepository) {
-//                    try {
-//                        RepositoryLayout layout = new Maven2RepositoryLayoutFactory().newInstance(session, (RemoteRepository) repository);
-//                        final URI location = layout.getLocation(resultMetadata, false);
-//                        final File file = resultMetadata.getFile();
-//                        System.out.println(file.getAbsolutePath() + " " + file.exists());
-//                    } catch (NoRepositoryLayoutException e) {
-//                        e.printStackTrace();
-//                    }
-
-//                }
-//            }
-//
-//        }  catch (SettingsBuildingException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
     }
+
 
     public static MavenArtifact getArtifactByAether(MavenArtifact artifact) throws MavenException {
         return getArtifactByAether(artifact,
-                new File(System.getProperty("user.home") + File.separatorChar + LOCAL_REPO));
+                LOCAL_REPO);
     }
 
     public static MavenArtifact getArtifactByAether(MavenArtifact a, File localRepository) throws MavenException {
@@ -244,7 +223,7 @@ public class AetherUtilities {
     }
 
     public static MavenArtifact getArtifactByAether(MavenArtifact a, File localRepository, boolean searchLocally) throws MavenException {
-        Artifact artifact = null;
+        Artifact artifact;
         RepositorySystem repositorySystem;
         RepositorySystemSession session;
         ArtifactRequest artifactRequest;
@@ -261,9 +240,9 @@ public class AetherUtilities {
 
             artifactRequest.setRepositories(repositories);
 
-            File localArtifactFile = searchLocally ? new File(localRepository.getAbsolutePath() + File.separator + session.getLocalRepositoryManager().getPathForLocalArtifact(artifact)) : null;
+            File localArtifactFile = new File(localRepository.getAbsolutePath() + File.separator + session.getLocalRepositoryManager().getPathForLocalArtifact(artifact));
 
-            if (localArtifactFile == null || !localArtifactFile.exists()) {
+            if (!searchLocally || !localArtifactFile.exists()) {
                 ArtifactResult artifactResult = repositorySystem.resolveArtifact(session, artifactRequest);
                 artifact = artifactResult.getArtifact();
             } else {

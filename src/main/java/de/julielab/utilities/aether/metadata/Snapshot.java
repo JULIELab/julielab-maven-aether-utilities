@@ -2,6 +2,25 @@ package de.julielab.utilities.aether.metadata;
 
 public class Snapshot {
     private String timestamp;
+    private String localCopy;
+
+    @Override
+    public String toString() {
+        return "Snapshot{" +
+                "timestamp='" + timestamp + '\'' +
+                ", localCopy='" + localCopy + '\'' +
+                ", buildNumber=" + buildNumber +
+                '}';
+    }
+
+    public String getLocalCopy() {
+        return localCopy;
+    }
+
+    public void setLocalCopy(String localCopy) {
+        this.localCopy = localCopy;
+    }
+
     private int buildNumber;
 
     public String getTimestamp() {
@@ -14,14 +33,6 @@ public class Snapshot {
 
     public int getBuildNumber() {
         return buildNumber;
-    }
-
-    @Override
-    public String toString() {
-        return "Snapshot{" +
-                "timestamp='" + timestamp + '\'' +
-                ", buildNumber=" + buildNumber +
-                '}';
     }
 
     public void setBuildNumber(int buildNumber) {
