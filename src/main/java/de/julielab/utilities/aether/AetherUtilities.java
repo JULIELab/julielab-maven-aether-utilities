@@ -59,10 +59,10 @@ public class AetherUtilities {
         artifact.setArtifactId("jcore-jsbd-ae");
         artifact.setVersion("2.3.4-SNAPSHOT");
         artifact.setPackaging("jar");
-        System.out.println(getRemoteChecksums(artifact, true));
+        System.out.println(getRemoteChecksums(artifact));
     }
 
-    public static Optional<List<Checksum>> getRemoteChecksums(MavenArtifact artifact, boolean searchLocally) throws MavenException {
+    public static Optional<List<Checksum>> getRemoteChecksums(MavenArtifact artifact) throws MavenException {
         try {
             RepositorySystemSession session = MavenRepositoryUtilities.newSession(MavenRepositoryUtilities.newRepositorySystem(), LOCAL_REPO);
             if (artifact.getAetherArtifact().isSnapshot()) {
