@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GetCoordinatesFromEffectivePomTest {
 
     @BeforeClass
-    public static void checkInternetConnection() throws MalformedURLException {
+    public static void checkInternetConnection() {
         try (InputStream ignored = new URL("https://oss.sonatype.org/content/repositories/public/").openStream()) {
             // nothing, test can be executed
         } catch (IOException e) {
@@ -27,10 +27,10 @@ public class GetCoordinatesFromEffectivePomTest {
     public void testMain() throws FileNotFoundException, MavenException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
-        GetCoordinatesFromEffectivePom.main(new String[]{"src/test/resources/testpoms/simplepom.xml"});
+        GetCoordinatesFromEffectivePom.main(new String[]{"src/test/resources/testpoms/simple_costosys_pom.xml"});
         String output = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-        assertThat(output).contains("GROUPID: the.group");
-        assertThat(output).contains("ARTIFACTID: the-artifact");
+        assertThat(output).contains("GROUPID: de.julielab");
+        assertThat(output).contains("ARTIFACTID: costosys");
         assertThat(output).contains("VERSION: 1.2.3");
         assertThat(output).contains("PACKAGING: jar");
     }
