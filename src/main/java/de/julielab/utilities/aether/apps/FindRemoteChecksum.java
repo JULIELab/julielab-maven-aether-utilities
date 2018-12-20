@@ -10,8 +10,9 @@ import java.util.Optional;
 
 public class FindRemoteChecksum {
     public static void main(String args[]) throws MavenException {
+
         if (args.length != 2) {
-            System.err.println("Usage: " + GetRemoteChecksums.class.getSimpleName() + " <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version> <comparison checksum>");
+            System.err.println("Usage: " + FindRemoteChecksum.class.getSimpleName() + " <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version> <comparison checksum>");
             System.exit(1);
         }
         // Use Aether's version string parsing algorithm

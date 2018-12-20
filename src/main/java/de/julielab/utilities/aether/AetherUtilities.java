@@ -139,7 +139,6 @@ public class AetherUtilities {
                 final List<RepositoryLayout.Checksum> checksums = layout.getChecksums(a, false, layout.getLocation(a, false));
                 for (RepositoryLayout.Checksum cs : checksums) {
                     // Here we concatenate the repository URL with the relative path of the checksum file
-                    System.out.println(repository);
                     URI checksumUri = URI.create(repository.getUrl() + "/" + cs.getLocation().toString());
                     // And now finally read the checksum file's contents. It should be a single line with the actual checksum.
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(checksumUri.toURL().openStream()))) {
