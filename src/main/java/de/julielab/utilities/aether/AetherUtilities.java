@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import de.julielab.utilities.aether.metadata.MetadataFile;
 import de.julielab.utilities.aether.metadata.SnapshotVersion;
+import org.apache.maven.model.building.*;
 import org.apache.maven.settings.building.*;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -51,6 +52,7 @@ public class AetherUtilities {
 
     private AetherUtilities() {
     }
+
 
     public static Optional<List<Checksum>> getRemoteChecksums(MavenArtifact artifact) throws MavenException {
         try {

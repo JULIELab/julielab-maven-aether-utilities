@@ -16,6 +16,7 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
+import org.eclipse.aether.spi.locator.ServiceLocator;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.repository.DefaultMirrorSelector;
@@ -34,9 +35,16 @@ public class MavenRepositoryUtilities {
     public static final RemoteRepository CENTRAL = new RemoteRepository.Builder("CENTRAL", "default", "https://oss.sonatype.org/content/repositories/public/").setSnapshotPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_WARN)).build();
     public static final RemoteRepository LOCAL = new RemoteRepository.Builder("LOCAL", "default", MavenConstants.LOCAL_REPO.toURI().toString()).build();
 
-    private final static Logger log = LoggerFactory.getLogger(MavenRepositoryUtilities.class);
+
+    private MavenRepositoryUtilities() {
+    }
+
     public static RepositorySystem newRepositorySystem() {
-        DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
+        return newRepositorySystem(null);
+    }
+
+    public static RepositorySystem newRepositorySystem(DefaultServiceLocator serviceLocator) {
+        DefaultServiceLocator locator = serviceLocator != null ? serviceLocator : MavenRepositorySystemUtils.newServiceLocator();
         locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
         locator.addService(TransporterFactory.class, FileTransporterFactory.class);
         locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
@@ -61,10 +69,6 @@ public class MavenRepositoryUtilities {
         return session;
     }
 
-
-
-
-
     public static List<RemoteRepository> getEffectiveRepositories(RepositorySystemSession session) throws SettingsBuildingException {
         Map<String, Authentication> authenticationMap = MavenSettingsUtilities.getRepositoryAuthenticationsFromMavenSettings();
         DefaultRemoteRepositoryManager remoteRepositoryManager = new DefaultRemoteRepositoryManager();
@@ -76,8 +80,5 @@ public class MavenRepositoryUtilities {
             return repo;
         }).collect(toList());
         return repositories;
-    }
-
-    private MavenRepositoryUtilities() {
     }
 }
