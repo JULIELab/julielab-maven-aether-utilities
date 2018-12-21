@@ -127,7 +127,7 @@ public class AetherUtilities {
                 final MetadataFile metadataFile = xmlMapper.readValue(metadata.getFile(), MetadataFile.class);
                 final Optional<SnapshotVersion> svOpt = metadataFile.getVersioning().getSnapshotVersions().stream().filter(sv -> sv.hasExtension(artifact.getPackaging())).findAny();
                 if (!svOpt.isPresent())
-                    throw new IllegalArgumentException("Could find the artifact metadata for artifact " + artifact + " by extension " + artifact.getPackaging());
+                    throw new IllegalArgumentException("Could not find the artifact metadata for artifact " + artifact + " by extension " + artifact.getPackaging());
 
                 // As we have found the meta data we have been looking for, we now use it to construct the
                 // URL of the checksum file of the artifact we actually look for.

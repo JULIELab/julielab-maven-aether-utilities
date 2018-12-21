@@ -28,6 +28,7 @@ public class MavenArtifact implements Serializable {
         version = artifact.getVersion();
         classifier = artifact.getClassifier();
         file = artifact.getFile();
+        packaging = artifact.getExtension();
     }
 
     @Override
