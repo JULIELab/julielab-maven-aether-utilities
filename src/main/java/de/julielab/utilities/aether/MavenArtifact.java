@@ -98,7 +98,7 @@ public class MavenArtifact implements Serializable {
         this.file = file;
     }
 
-    public Artifact getAetherArtifact() {
+    public Artifact asAetherArtifact() {
         return new DefaultArtifact(groupId, artifactId, classifier, packaging, version);
     }
 

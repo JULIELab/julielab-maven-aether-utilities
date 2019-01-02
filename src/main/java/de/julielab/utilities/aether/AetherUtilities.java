@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import de.julielab.utilities.aether.metadata.MetadataFile;
 import de.julielab.utilities.aether.metadata.SnapshotVersion;
-import org.apache.maven.model.building.*;
 import org.apache.maven.settings.building.*;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -57,7 +56,7 @@ public class AetherUtilities {
     public static Optional<List<Checksum>> getRemoteChecksums(MavenArtifact artifact) throws MavenException {
         try {
             RepositorySystemSession session = MavenRepositoryUtilities.newSession(MavenRepositoryUtilities.newRepositorySystem(), LOCAL_REPO);
-            if (artifact.getAetherArtifact().isSnapshot()) {
+            if (artifact.asAetherArtifact().isSnapshot()) {
                 return getRemoteChecksumsOfSnapshotArtifact(artifact, session);
             } else {
                 return getRemoteChecksumsOfReleaseArtifact(artifact, session);
@@ -73,7 +72,7 @@ public class AetherUtilities {
         final List<RemoteRepository> repositories = MavenRepositoryUtilities.getEffectiveRepositories(session);
         for (RemoteRepository repository : repositories) {
             final RepositoryLayout layout = layoutFactory.newInstance(session, repository);
-            final List<RepositoryLayout.Checksum> checksums = layout.getChecksums(artifact.getAetherArtifact(), false, layout.getLocation(artifact.getAetherArtifact(), false));
+            final List<RepositoryLayout.Checksum> checksums = layout.getChecksums(artifact.asAetherArtifact(), false, layout.getLocation(artifact.asAetherArtifact(), false));
             for (RepositoryLayout.Checksum cs : checksums) {
                 final URI checksumUri = URI.create(repository.getUrl() + "/" + cs.getLocation().toString());
                 // And now finally read the checksum file's contents. It should be a single line with the actual checksum.
@@ -306,7 +305,12 @@ public class AetherUtilities {
     public static Stream<String> getVersions(MavenArtifact requestedArtifact) throws MavenException {
         return getVersions(requestedArtifact, "0", String.valueOf(Integer.MAX_VALUE), true, true);
     }
-
+public static void main(String args[]) throws MavenException {
+    final MavenArtifact ma = new MavenArtifact();
+    ma.setArtifactId("jcore-biosem-ae");
+    ma.setGroupId("de.julielab");
+    getVersions(ma).forEach(System.out::println);
+}
     /**
      * Retrieves all versions of the given artifact - whose given version is ignored in this method - that are available
      * within the described version range.
