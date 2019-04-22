@@ -8,12 +8,12 @@ import org.apache.maven.model.Model;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.assertTrue;
-import static org.assertj.core.api.Assertions.*;
 public class MavenProjectUtilitiesTest {
     @Test
     public void testWriteModel() throws Exception {
@@ -40,7 +40,7 @@ public class MavenProjectUtilitiesTest {
         a.setArtifactId("commons-io");
         a.setGroupId("commons-io");
         a.setVersion("2.6");
-        final Model model = MavenProjectUtilities.createModelWithDependencies(Path.of("src", "test", "resources", "testpoms", "simple_pom_without_parent.xml").toFile(), Stream.of(a));
+        final Model model = MavenProjectUtilities.addDependenciesToModel(Path.of("src", "test", "resources", "testpoms", "simple_pom_without_parent.xml").toFile(), Stream.of(a));
         MavenProjectUtilities.writeModel(outputPom, model);
         assertTrue(outputPom.exists());
         final Model loadedModel = MavenProjectUtilities.getRawPomModel(outputPom);

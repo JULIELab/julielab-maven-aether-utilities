@@ -93,7 +93,7 @@ public class MavenProjectUtilities {
         return modelResolver;
     }
 
-    public static Model createModelWithDependencies(File basePom, Stream<MavenArtifact> dependencyArtifacts) throws MavenException {
+    public static Model addDependenciesToModel(File basePom, Stream<MavenArtifact> dependencyArtifacts) throws MavenException {
         try {
             final ModelBuildingRequest modelRequest = new DefaultModelBuildingRequest();
             modelRequest.setPomFile(basePom);
