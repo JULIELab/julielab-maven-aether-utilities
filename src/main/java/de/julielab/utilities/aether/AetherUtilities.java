@@ -266,8 +266,13 @@ public class AetherUtilities {
     }
 
     public static void storeArtifactsWithDependencies(Stream<MavenArtifact> requestedArtifacts, File libDir) throws MavenException {
-        log.trace("Storing artifacts {} with all its dependencies to {}", requestedArtifacts, libDir);
-        Stream<Artifact> dependencies = getDependencies(requestedArtifacts);
+        storeArtifactsWithDependencies(null, requestedArtifacts, libDir);
+    }
+
+    public static void storeArtifactsWithDependencies(MavenArtifact dependencyTreeRoot, Stream<MavenArtifact> requestedArtifacts, File libDir) throws MavenException {
+        final List<MavenArtifact> artifactList = requestedArtifacts.collect(toList());
+        log.trace("Storing artifacts {} with all its dependencies to {}", artifactList, libDir);
+        Stream<Artifact> dependencies = getDependencies(dependencyTreeRoot, artifactList.stream());
         if (!libDir.exists())
             libDir.mkdirs();
         Consumer<Artifact> writer = a -> {
@@ -368,6 +373,10 @@ public static void main(String args[]) throws MavenException {
     }
 
     public static Stream<Artifact> getDependencies(Stream<MavenArtifact> requestedArtifacts) throws MavenException {
+        return getDependencies(null, requestedArtifacts);
+    }
+
+    public static Stream<Artifact> getDependencies(MavenArtifact dependencyTreeRoot, Stream<MavenArtifact> requestedArtifacts) throws MavenException {
         RepositorySystem repositorySystem = MavenRepositoryUtilities.newRepositorySystem();
         RepositorySystemSession session;
         try {
@@ -384,9 +393,11 @@ public static void main(String args[]) throws MavenException {
                 .collect(toList());
 
         try {
-            CollectRequest collectRequest = new CollectRequest();
-            collectRequest.setDependencies(components);
-            collectRequest.setRepositories(MavenRepositoryUtilities.getEffectiveRepositories(session));
+            Dependency root = dependencyTreeRoot != null ? new Dependency(dependencyTreeRoot.asAetherArtifact(), "compile") : null;
+
+            CollectRequest collectRequest = new CollectRequest(root, components, MavenRepositoryUtilities.getEffectiveRepositories(session));
+//            collectRequest.setDependencies(components);
+//            collectRequest.setRepositories(MavenRepositoryUtilities.getEffectiveRepositories(session));
             CollectResult collectResult = repositorySystem.collectDependencies(session, collectRequest);
             DependencyNode node = collectResult.getRoot();
 

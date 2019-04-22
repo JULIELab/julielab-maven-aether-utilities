@@ -5,12 +5,12 @@
     <parent>
         <artifactId>julielab-parent</artifactId>
         <groupId>de.julielab</groupId>
-        <version>2.2.0</version>
+        <version>2.4.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>julielab-maven-aether-utilities</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
