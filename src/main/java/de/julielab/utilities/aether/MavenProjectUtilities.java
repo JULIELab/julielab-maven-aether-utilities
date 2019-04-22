@@ -1,7 +1,9 @@
 package de.julielab.utilities.aether;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.*;
+import org.apache.maven.model.io.DefaultModelWriter;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.apache.maven.settings.building.SettingsBuildingException;
@@ -12,11 +14,13 @@ import org.eclipse.aether.impl.RemoteRepositoryManager;
 import org.eclipse.aether.impl.VersionRangeResolver;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MavenProjectUtilities {
 
@@ -41,7 +45,7 @@ public class MavenProjectUtilities {
     public static List<String> getRecursiveProjectModules(List<String> modules) {
         List<String> ret = new ArrayList<>();
         for (String module : modules) {
-            ret.addAll(getProjectModules(new File( module + File.separator + "pom.xml"), true));
+            ret.addAll(getProjectModules(new File(module + File.separator + "pom.xml"), true));
         }
         return ret;
     }
@@ -87,5 +91,37 @@ public class MavenProjectUtilities {
             throw new MavenException(e);
         }
         return modelResolver;
+    }
+
+    public static Model createModelWithDependencies(File basePom, Stream<MavenArtifact> dependencyArtifacts) throws MavenException {
+        try {
+            final ModelBuildingRequest modelRequest = new DefaultModelBuildingRequest();
+            modelRequest.setPomFile(basePom);
+            modelRequest.setModelResolver(createModelResolver());
+            // This is required to avoid errors about not able to determine the Java version
+            modelRequest.setSystemProperties(System.getProperties());
+
+            final DefaultModelBuilder modelBuilder = new DefaultModelBuilderFactory().newInstance();
+            ModelBuildingResult modelBuildingResult = modelBuilder.build(modelRequest);
+            final Model model = modelBuildingResult.getEffectiveModel();
+
+            dependencyArtifacts.map(d -> {
+                Dependency dep = new Dependency();
+                dep.setArtifactId(d.getArtifactId());
+                dep.setGroupId(d.getGroupId());
+                dep.setVersion(d.getVersion());
+                dep.setType(d.getPackaging());
+                dep.setClassifier(dep.getClassifier());
+                return dep;
+            }).forEach(model::addDependency);
+            return model;
+        } catch (SettingsBuildingException | ModelBuildingException e) {
+            throw new MavenException(e);
+        }
+    }
+
+    public static void writeModel(File destination, Model model) throws IOException {
+        final DefaultModelWriter modelWriter = new DefaultModelWriter();
+        modelWriter.write(destination, null, model);
     }
 }
