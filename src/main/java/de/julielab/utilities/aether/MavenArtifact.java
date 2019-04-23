@@ -1,5 +1,6 @@
 package de.julielab.utilities.aether;
 
+import org.apache.maven.model.Model;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.ArtifactType;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -20,6 +21,12 @@ public class MavenArtifact implements Serializable {
     public MavenArtifact() {
 
 
+    }
+
+    public MavenArtifact(String groupId, String artifactId, String version) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
     }
 
     public MavenArtifact(Artifact artifact) {
@@ -96,6 +103,21 @@ public class MavenArtifact implements Serializable {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public void setCoordinatesFromFile() {
+        if (file == null)
+            throw new IllegalStateException("The POM file is not set.");
+        if (!file.exists())
+            throw new IllegalStateException("The POM file " + file.getAbsolutePath() + " should be used to set the MavenArtifact coordinates, but the file does not exist.");
+        final Model model = MavenProjectUtilities.getRawPomModel(file);
+        setGroupId(model.getGroupId());
+        if (getGroupId() == null && model.getParent() != null)
+            setGroupId(model.getParent().getGroupId());
+        else throw new IllegalArgumentException("The POM file " + file.getAbsolutePath() + " does not specify a groupId nor a parent to retrieve the groupId from.‚");
+        setArtifactId(model.getArtifactId());
+        setVersion(model.getVersion());
+        setPackaging(model.getPackaging());
     }
 
     public Artifact asAetherArtifact() {

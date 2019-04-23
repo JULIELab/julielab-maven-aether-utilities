@@ -386,7 +386,6 @@ public static void main(String args[]) throws MavenException {
             throw new MavenException(e);
         }
 
-
         final List<Dependency> components = requestedArtifacts
                 .map(a -> new DefaultArtifact(a.getGroupId(), a.getArtifactId(), a.getClassifier(), a.getPackaging(), a.getVersion()))
                 .map(a -> new Dependency(a, "compile"))
