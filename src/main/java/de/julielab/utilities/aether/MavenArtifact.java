@@ -99,7 +99,9 @@ public class MavenArtifact implements Serializable {
     }
 
     public Artifact asAetherArtifact() {
-        return new DefaultArtifact(groupId, artifactId, classifier, packaging, version);
+        final DefaultArtifact ret = new DefaultArtifact(groupId, artifactId, classifier, packaging, version);
+        ret.setFile(file);
+        return ret;
     }
 
     @Override
