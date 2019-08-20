@@ -230,6 +230,7 @@ public class AetherUtilities {
 
             artifactRequest.setRepositories(repositories);
 
+            // TODO what about searching for the newest version?
             File localArtifactFile = new File(localRepository.getAbsolutePath() + File.separator + session.getLocalRepositoryManager().getPathForLocalArtifact(artifact));
 
             if (!searchLocally || !localArtifactFile.exists()) {
