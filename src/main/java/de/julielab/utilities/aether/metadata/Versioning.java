@@ -1,7 +1,6 @@
 package de.julielab.utilities.aether.metadata;
 
 
-import java.util.Collection;
 import java.util.List;
 
 public class Versioning {

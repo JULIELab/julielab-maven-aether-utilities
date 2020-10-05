@@ -2,7 +2,6 @@ package de.julielab.utilities.aether;
 
 import org.apache.maven.model.Model;
 import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.ArtifactType;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.File;

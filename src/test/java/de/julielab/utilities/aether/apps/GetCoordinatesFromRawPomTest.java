@@ -1,12 +1,14 @@
 package de.julielab.utilities.aether.apps;
 
 import de.julielab.utilities.aether.MavenException;
-import de.julielab.utilities.aether.apps.GetCoordinatesFromRawPom;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import static org.assertj.core.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 public class GetCoordinatesFromRawPomTest {
     @Test
     public void testMain() throws FileNotFoundException, MavenException {
