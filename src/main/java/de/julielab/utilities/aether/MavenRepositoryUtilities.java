@@ -69,7 +69,7 @@ public class MavenRepositoryUtilities {
     public static List<RemoteRepository> getEffectiveRepositories(RepositorySystemSession session) throws SettingsBuildingException {
         Map<String, Authentication> authenticationMap = MavenSettingsUtilities.getRepositoryAuthenticationsFromMavenSettings();
         DefaultRemoteRepositoryManager remoteRepositoryManager = new DefaultRemoteRepositoryManager();
-        List<RemoteRepository> repositories = remoteRepositoryManager.aggregateRepositories(session, Arrays.asList(CENTRAL), MavenSettingsUtilities.getRemoteRepositoriesFromSettings(), true);
+        List<RemoteRepository> repositories = remoteRepositoryManager.aggregateRepositories(session, Arrays.asList(LOCAL, CENTRAL), MavenSettingsUtilities.getRemoteRepositoriesFromSettings(), true);
         repositories = repositories.stream().map(repo -> {
             if (authenticationMap.containsKey(repo.getId())) {
                 return new RemoteRepository.Builder(repo).setAuthentication(authenticationMap.get(repo.getId())).build();
