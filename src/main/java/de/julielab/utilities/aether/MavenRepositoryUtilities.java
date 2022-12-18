@@ -29,7 +29,7 @@ import static java.util.stream.Collectors.toList;
 
 public class MavenRepositoryUtilities {
 
-    public static final RemoteRepository CENTRAL = new RemoteRepository.Builder("CENTRAL", "default", "https://oss.sonatype.org/content/repositories/public/").setSnapshotPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_WARN)).build();
+    public static final RemoteRepository CENTRAL = new RemoteRepository.Builder("CENTRAL", "default", "https://oss.sonatype.org/content/repositories/public").setSnapshotPolicy(new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_WARN)).build();
     public static final RemoteRepository LOCAL = new RemoteRepository.Builder("LOCAL", "default", MavenConstants.LOCAL_REPO.toURI().toString()).build();
 
 
